@@ -1,0 +1,59 @@
+<html>
+<head>
+    <title>Wall Assignment</title>
+    {% load static %}
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    <link rel="stylesheet" type="text/css" href="{% static '/messages_and_comments/css/style.css' %}">
+</head>
+<body>
+    <div class = "wrapper">
+        <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+            <div class="collapse navbar-collapse" id="navbarTogglerDemo01">
+                <h1 class="navbar-brand">CodingDojo Wall</h1>
+                <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
+                    <nav class="navbar navbar-light bg-primary">
+                        <span class="navbar-text" style = "margin-left: 1000px">
+                            Welcome {{ user.first_name }} {{ user.last_name }}!
+                        </span>
+                    </nav>
+                    <li class="nav-item" style = 'margin-top: 8px'>
+                        <a class = 'nav-link' href="/logout">log off</a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+        {% if messages %}
+        <ul class="messages">    
+            {% for message in messages %}    
+                <li {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>    
+            {% endfor %}
+        </ul>
+        {% endif %}
+        <div class = 'main_section'>
+            <h2>Post a Message</h2>
+            <form action = '/wall/create_message' method = 'post'>
+                {% csrf_token %}
+                <textarea class="form-control" id="content" name = "content" rows="5"></textarea>
+                <button class="btn btn-primary" type="submit" style = "margin-top: 20px">Post a Message</button>
+            </form>
+            {% for the_message in wall_messages %} 
+                <h3>{{ the_message.message_owner.first_name }} {{ the_message.message_owner.last_name }} - {{ the_message.created_at }}</h3>
+                <div class = "message_section">
+                    <p>{{the_message.content}}</p>
+                    {% for comment in the_message.comments.all %}
+                        <h4>{{ comment.comment_owner.first_name }} {{ comment.comment_owner.last_name }} - {{ comment.created_at }}</h4>
+                        <p>{{comment.content}}</p>
+                    {% endfor %}
+                    <h4>Post a Comment</h4>
+                    <form action = '/wall/create_comment' method = 'post'>
+                        {% csrf_token %}
+                        <input type = 'hidden' name = 'message_id' id = 'message_id' value = {{ the_message.id }}>
+                        <textarea class="form-control" id="content" name = "content" rows="3"></textarea>
+                        <button class="btn btn-success" type="submit" style = "margin-top: 20px">Post a Comment</button>
+                    </form>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</body>
