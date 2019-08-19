@@ -5,6 +5,8 @@ import bcrypt
 import re
 
 def index(request):
+    if 'curUser' in request.session:
+        return redirect('/wall')
     return render(request, 'login_app/index.html')
 
 def user_homepage(request):
@@ -48,10 +50,9 @@ def register(request):
         for key, value in errors.items():
             messages.error(request, value)
         return redirect('/')
-    else:
-        password = request.POST['regPassword']
-        pw_hash = bcrypt.hashpw(password.encode(), bcrypt.gensalt())  # create the hash    
-        Users.objects.create(first_name=request.POST['first_name'], last_name = request.POST['last_name'],
-                    email = request.POST['email'], birthdate = request.POST['date'], pw_hash=pw_hash)
-        request.session['curUser'] = request.POST['email']
-        return redirect('/wall')
+    password = request.POST['regPassword']
+    pw_hash = bcrypt.hashpw(password.encode(), bcrypt.gensalt())  # create the hash    
+    Users.objects.create(first_name=request.POST['first_name'], last_name = request.POST['last_name'],
+            email = request.POST['email'], birthdate = request.POST['date'], pw_hash=pw_hash)
+    request.session['curUser'] = request.POST['email']
+    return redirect('/wall')
